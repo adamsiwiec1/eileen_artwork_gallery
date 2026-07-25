@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Baseline tags for crawlers that never run JavaScript. React 19 hoists
+         per-route <title>/<meta> over these once the app mounts. -->
+    <title>Eileen — Hand-Painted Art From Your Imagination</title>
+    <meta
+      name="description"
+      content="Describe the painting you have always wanted, refine it in conversation with our studio AI, then have it hand-painted in oil, acrylic, watercolour or charcoal and shipped to your wall."
+    />
+    <link rel="canonical" href="https://eileen.art/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Eileen" />
+    <meta property="og:title" content="Eileen — Hand-Painted Art From Your Imagination" />
+    <meta
+      property="og:description"
+      content="Describe it, refine it in conversation, then we hand-paint it. Commissioned originals in 3–5 days."
+    />
+    <meta property="og:image" content="https://picsum.photos/seed/eileen-og/1200/630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://picsum.photos" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Organisation-level structured data. Page-level Product/Review JSON-LD is
+         injected per route from React. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Eileen",
+        "url": "https://eileen.art/",
+        "description": "Commissioned hand-painted artwork designed conversationally with AI.",
+        "sameAs": []
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

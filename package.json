@@ -1,0 +1,22 @@
+{
+  "name": "eileen-artwork-gallery",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev --workspace @gallery/api",
+    "dev:web": "npm run dev --workspace @gallery/web",
+    "build": "npm run build --workspace @gallery/api && npm run build --workspace @gallery/web",
+    "typecheck": "npm run typecheck --workspace @gallery/api && npm run typecheck --workspace @gallery/web"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
+}

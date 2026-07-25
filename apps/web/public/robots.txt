@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /studio/complete
+
+Sitemap: https://eileen.art/sitemap.xml

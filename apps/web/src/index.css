@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+
+/* Tailwind v4 CSS-first config: design tokens become utilities automatically,
+   so `bg-canvas` or `text-ink` work with no tailwind.config.js. */
+@theme {
+  --color-canvas: #0b0a09;
+  --color-canvas-2: #141210;
+  --color-canvas-3: #1e1a17;
+  --color-ink: #f5f0e8;
+  --color-ink-muted: #a89f92;
+  --color-gilt: #c8a468;
+  --color-gilt-bright: #e6c78d;
+  --color-rose: #b8654f;
+  --color-verdigris: #5f7d6e;
+
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-weight: 300;
+  }
+
+  ::selection {
+    background-color: var(--color-gilt);
+    color: var(--color-canvas);
+  }
+
+  /* Respect users who ask for less motion; Motion reads this too, but the
+     CSS-driven bits need it explicitly. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* Faint canvas weave so large dark areas do not read as flat black. */
+@utility bg-weave {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+@utility gilt-rule {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-gilt) 20%,
+    var(--color-gilt-bright) 50%,
+    var(--color-gilt) 80%,
+    transparent
+  );
+}
+
+/* Thin scrollbar for the studio conversation panel. */
+@utility scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-canvas-3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-canvas-3);
+    border-radius: 999px;
+  }
+}
