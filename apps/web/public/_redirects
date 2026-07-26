@@ -1,0 +1,4 @@
+# SPA fallback. Cloudflare Pages serves real files first, so this only catches
+# paths with no matching asset — client-side routes like /gallery and /studio.
+# Without it, deep links and hard refreshes 404.
+/*  /index.html  200

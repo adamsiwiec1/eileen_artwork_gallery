@@ -1,0 +1,48 @@
+# Render Blueprint. Create the service by pointing Render at this repo:
+# Dashboard -> New -> Blueprint. Values marked `sync: false` are deliberately
+# left blank here and typed into the dashboard, so no secret lands in git.
+services:
+  - type: web
+    name: eileen-api
+    runtime: node
+    plan: free
+    region: oregon
+    # Build from the repo root so npm workspaces resolve.
+    buildCommand: npm ci && npm run build --workspace @gallery/api
+    startCommand: node apps/api/dist/index.js
+    # Render restarts the service if this stops returning 2xx.
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: NODE_ENV
+        value: production
+
+      # Comma-separated list of allowed browser origins. Put the Cloudflare
+      # Pages URL here once it exists, e.g.
+      #   https://eileen-gallery.pages.dev,https://eileen.art
+      - key: WEB_ORIGIN
+        sync: false
+
+      # Free tier, no credit card: https://aistudio.google.com/apikey
+      # Enables real conversational image editing plus the chat layer.
+      # Leave blank to fall back to Pollinations, which needs no key at all.
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # Optional free chat-only alternative: https://console.groq.com/keys
+      - key: GROQ_API_KEY
+        sync: false
+
+      # Optional and paid. gpt-image-1 bills per image.
+      - key: OPENAI_API_KEY
+        sync: false
+
+      # Optional overrides; auto-detected from whichever keys are set above.
+      #   IMAGE_PROVIDER: pollinations | gemini | openai | mock
+      #   CHAT_PROVIDER:  heuristic | gemini | groq | openai
+      - key: IMAGE_PROVIDER
+        sync: false
+      - key: CHAT_PROVIDER
+        sync: false

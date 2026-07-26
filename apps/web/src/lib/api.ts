@@ -7,8 +7,17 @@ import type {
   Testimonial,
 } from './types';
 
+/**
+ * Empty by default, which keeps every request relative and same-origin. That is
+ * what lets Vite's dev proxy (and therefore ngrok) work with no CORS layer.
+ *
+ * In production the API lives on a different host, so `VITE_API_URL` is baked in
+ * at build time and requests become absolute. Set it with no trailing slash.
+ */
+const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}/api${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   });

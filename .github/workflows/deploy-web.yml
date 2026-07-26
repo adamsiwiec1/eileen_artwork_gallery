@@ -1,0 +1,91 @@
+name: Deploy web
+
+on:
+  push:
+    branches: [main]
+  # Manual runs are useful after changing VITE_API_URL, since the API origin is
+  # compiled into the bundle and only a rebuild picks it up.
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web
+  cancel-in-progress: false
+
+env:
+  PAGES_PROJECT: eileen-gallery
+
+jobs:
+  deploy:
+    name: Cloudflare Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.deployment-url }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.12.0
+          cache: npm
+
+      - run: npm ci
+
+      # Vite inlines env vars at build time, so an unset VITE_API_URL would ship
+      # a bundle requesting /api on the Pages domain, where nothing serves it.
+      # Every call would 404 and the site would look broken for no visible
+      # reason, so fail loudly here instead.
+      - name: Require the API origin
+        run: |
+          if [ -z "${{ vars.VITE_API_URL }}" ]; then
+            echo "::error::Repository variable VITE_API_URL is not set."
+            echo "Set it to the Render API origin with no trailing slash, e.g."
+            echo "  gh variable set VITE_API_URL --body https://eileen-api.onrender.com"
+            exit 1
+          fi
+          echo "Building against ${{ vars.VITE_API_URL }}"
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build --workspace @gallery/web
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+      # Creating the project on first run means no manual dashboard setup.
+      - name: Ensure Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if npx wrangler pages project list 2>/dev/null | grep -qw "$PAGES_PROJECT"; then
+            echo "Project $PAGES_PROJECT already exists."
+          else
+            echo "Creating Pages project $PAGES_PROJECT."
+            npx wrangler pages project create "$PAGES_PROJECT" --production-branch=main
+          fi
+
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy apps/web/dist
+            --project-name=${{ env.PAGES_PROJECT }}
+            --branch=main
+
+      - name: Summary
+        run: |
+          {
+            echo "### Deployed"
+            echo ""
+            echo "- URL: ${{ steps.deploy.outputs.deployment-url }}"
+            echo "- API: ${{ vars.VITE_API_URL }}"
+            echo ""
+            echo "If API calls fail with CORS errors, add the URL above to"
+            echo "\`WEB_ORIGIN\` on the Render service."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -16,6 +16,9 @@ medium, size and how fast they need it.
 | Chat      | Heuristic (no key) · Gemini · Groq · OpenAI                  |
 | Payments  | Provider-agnostic adapter, currently simulated              |
 
+Deploying? See [DEPLOYMENT.md](./DEPLOYMENT.md) — Cloudflare Pages for the
+frontend, Render for the API, GitHub Actions for both.
+
 ## Running it
 
 ```bash
@@ -27,7 +30,13 @@ npm run dev
 - API: http://localhost:4000
 
 Vite proxies `/api` to the Express server, so the browser only ever talks to one
-origin and there is no CORS layer in development.
+origin and there is no CORS layer in development. This is also why sharing the
+dev server over a tunnel like ngrok works with no extra configuration: requests
+stay relative, and `localhost:4000` is resolved by Vite on your machine rather
+than by the visitor's browser.
+
+In production the two are on different hosts, so `VITE_API_URL` is compiled into
+the bundle and requests become absolute. Leave it unset locally.
 
 Other scripts: `npm run build`, `npm run typecheck`.
 

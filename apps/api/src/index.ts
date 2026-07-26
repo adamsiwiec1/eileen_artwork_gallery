@@ -10,14 +10,62 @@ import { createChatProvider } from './chatProvider.js';
 import { createPaymentProvider } from './paymentProvider.js';
 
 const PORT = Number(process.env.PORT ?? 4000);
-const WEB_ORIGIN = process.env.WEB_ORIGIN ?? 'http://localhost:5173';
+
+/**
+ * Comma-separated list, because production has more than one legitimate origin:
+ * the custom domain, the *.pages.dev production alias, and localhost for
+ * debugging against the deployed API. The first entry is used when building
+ * absolute URLs for checkout redirects.
+ */
+const WEB_ORIGINS = (process.env.WEB_ORIGIN ?? 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const WEB_ORIGIN = WEB_ORIGINS[0] ?? 'http://localhost:5173';
+
+const ALLOW_PREVIEWS = process.env.ALLOW_PAGES_PREVIEWS !== 'false';
+
+/**
+ * Cloudflare Pages serves branch and commit previews from
+ * `<commit-or-branch>.<project>.pages.dev` — note the extra label, which a
+ * single-label pattern misses.
+ *
+ * The pattern is derived from whichever `*.pages.dev` origin is configured, so
+ * previews of this project are allowed without opening the API to every site
+ * hosted on pages.dev.
+ */
+const PREVIEW_PATTERNS = WEB_ORIGINS.flatMap((origin) => {
+  const project = /^https:\/\/([a-z0-9-]+)\.pages\.dev$/.exec(origin)?.[1];
+  return project ? [new RegExp(`^https://[a-z0-9-]+\\.${project}\\.pages\\.dev$`)] : [];
+});
+
+const isPreviewOrigin = (origin: string) =>
+  ALLOW_PREVIEWS && PREVIEW_PATTERNS.some((pattern) => pattern.test(origin));
 
 const images = createImageProvider();
 const chat = createChatProvider();
 const payments = createPaymentProvider();
 
 const app = express();
-app.use(cors({ origin: WEB_ORIGIN, credentials: true }));
+
+app.use(
+  cors({
+    credentials: true,
+    origin(origin, callback) {
+      // Same-origin navigations and non-browser clients (curl, health checks,
+      // server-to-server) send no Origin header at all.
+      if (!origin) return callback(null, true);
+      if (WEB_ORIGINS.includes(origin)) return callback(null, true);
+      if (isPreviewOrigin(origin)) return callback(null, true);
+
+      // Deny by omitting the header rather than throwing. Throwing here would
+      // surface as a 500 and imply the server broke, when the correct outcome is
+      // the browser blocking the response itself.
+      callback(null, false);
+    },
+  }),
+);
 // Generated images come back as base64 data URLs, which blow past the default
 // 100kb body limit as soon as one is echoed back for an edit.
 app.use(express.json({ limit: '25mb' }));
