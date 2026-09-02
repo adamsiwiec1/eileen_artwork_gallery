@@ -1,0 +1,6 @@
+diffusers>=0.36.0
+transformers
+accelerate
+peft
+safetensors
+sentencepiece

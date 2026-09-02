@@ -195,6 +195,159 @@ class OpenAIImageProvider implements ImageProvider {
   }
 }
 
+/**
+ * Eileen's trained Flux LoRA, hosted on a Hugging Face ZeroGPU Space.
+ * The gallery Studio talks to this the same way it talks to Pollinations.
+ * Refinements re-render with a fixed session seed — the Space cannot edit.
+ */
+class EileenLoraImageProvider implements ImageProvider {
+  readonly name = 'eileen';
+  readonly supportsEditing = false;
+
+  private space = process.env.SPACE_ID?.trim() ?? '';
+  private token = process.env.HF_TOKEN?.trim();
+  private steps = Number(process.env.EILEEN_STEPS ?? 28);
+  private guidance = Number(process.env.EILEEN_GUIDANCE ?? 3.5);
+
+  constructor(spaceId?: string) {
+    if (spaceId) this.space = spaceId;
+    if (!this.space) {
+      throw new Error('IMAGE_PROVIDER=eileen requires SPACE_ID (Hugging Face Space owner/name)');
+    }
+  }
+
+  async render({ prompt, seed }: ImageRequest): Promise<GeneratedImage> {
+    const host = await resolveSpaceHost(this.space, this.token);
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (this.token) headers.Authorization = `Bearer ${this.token}`;
+
+    const queued = await fetch(`${host}/gradio_api/call/generate`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        data: [
+          prompt,
+          seed,
+          Number.isFinite(this.steps) ? this.steps : 28,
+          Number.isFinite(this.guidance) ? this.guidance : 3.5,
+        ],
+      }),
+    });
+
+    if (queued.status === 429) {
+      throw Object.assign(
+        new Error(
+          'The style model is rate-limited (ZeroGPU daily quota). Try again later today.',
+        ),
+        { status: 429 },
+      );
+    }
+    if (!queued.ok) {
+      const detail = await queued.text();
+      throw Object.assign(
+        new Error(`Style Space returned ${queued.status}: ${detail.slice(0, 240)}`),
+        { status: 502 },
+      );
+    }
+
+    const { event_id: eventId } = (await queued.json()) as { event_id?: string };
+    if (!eventId) throw new Error('Style Space did not queue the painting');
+
+    const stream = await fetch(`${host}/gradio_api/call/generate/${eventId}`, { headers });
+    if (!stream.ok) {
+      throw Object.assign(new Error(`Style Space stream failed (${stream.status})`), {
+        status: 502,
+      });
+    }
+
+    const raw = parseGradioComplete(await stream.text());
+    const url = await freezeImage(raw, host);
+    if (!url) throw new Error('Style Space returned no image');
+    return { url, edited: false };
+  }
+}
+
+async function resolveSpaceHost(space: string, token?: string): Promise<string> {
+  if (/^https?:\/\//.test(space) || space.includes('.hf.space')) {
+    return space.replace(/\/$/, '').replace(/^(?!https?:\/\/)/, 'https://');
+  }
+
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`https://huggingface.co/api/spaces/${space}/host`, { headers });
+  if (!res.ok) {
+    throw Object.assign(
+      new Error(
+        `Could not reach Hugging Face Space ${space} (${res.status}). Set SPACE_ID to owner/name.`,
+      ),
+      { status: 502 },
+    );
+  }
+
+  const body = (await res.json()) as { host?: string };
+  if (!body.host) throw new Error(`Hugging Face Space ${space} has no host yet`);
+  return `https://${body.host.replace(/^https?:\/\//, '')}`;
+}
+
+function parseGradioComplete(sse: string): unknown {
+  let event = '';
+  for (const line of sse.split(/\r?\n/)) {
+    if (line.startsWith('event:')) {
+      event = line.slice(6).trim();
+      continue;
+    }
+    if (!line.startsWith('data:')) continue;
+    const payload = line.slice(5).trim();
+    if (!payload || payload === '[DONE]') continue;
+    let parsed: unknown = payload;
+    try {
+      parsed = JSON.parse(payload);
+    } catch {
+      // keep the raw string
+    }
+    if (event === 'error') {
+      const message =
+        typeof parsed === 'object' && parsed && 'error' in parsed
+          ? String((parsed as { error: unknown }).error)
+          : payload;
+      throw Object.assign(new Error(message), { status: 502 });
+    }
+    if (event === 'complete' || event === 'generating') {
+      return Array.isArray(parsed) ? parsed[0] : parsed;
+    }
+  }
+  throw new Error('Style Space finished without an image');
+}
+
+function asImageRef(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    if (value.startsWith('data:') || value.startsWith('http')) return value;
+    return `data:image/png;base64,${value}`;
+  }
+  if (typeof value === 'object') {
+    const rec = value as { url?: string; path?: string };
+    if (typeof rec.url === 'string') return rec.url;
+    if (typeof rec.path === 'string') return rec.path;
+  }
+  return null;
+}
+
+async function freezeImage(value: unknown, host: string): Promise<string | null> {
+  const ref = asImageRef(value);
+  if (!ref) return null;
+  if (ref.startsWith('data:')) return ref;
+
+  const absolute = ref.startsWith('http')
+    ? ref
+    : `${host}${ref.startsWith('/') ? '' : '/'}${ref}`;
+  const res = await fetch(absolute);
+  if (!res.ok) return absolute;
+  const buffer = Buffer.from(await res.arrayBuffer());
+  const mime = res.headers.get('content-type')?.split(';')[0] ?? 'image/png';
+  return `data:${mime};base64,${buffer.toString('base64')}`;
+}
+
 /** Offline placeholder. No network calls, so demos stay hermetic. */
 class MockImageProvider implements ImageProvider {
   readonly name = 'mock';
@@ -212,9 +365,11 @@ export function createImageProvider(): ImageProvider {
   const explicit = process.env.IMAGE_PROVIDER;
   const openaiKey = process.env.OPENAI_API_KEY?.trim();
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
+  const spaceId = process.env.SPACE_ID?.trim();
 
   const chosen =
     explicit ??
+    (spaceId ? 'eileen' : undefined) ??
     (geminiKey ? 'gemini' : undefined) ??
     (openaiKey ? 'openai' : undefined) ??
     'pollinations';
@@ -223,6 +378,15 @@ export function createImageProvider(): ImageProvider {
     case 'mock':
       console.log('[images] mock — offline placeholders');
       return new MockImageProvider();
+
+    case 'eileen':
+    case 'eileen-lora':
+    case 'lora':
+      if (!spaceId) {
+        throw new Error('IMAGE_PROVIDER=eileen requires SPACE_ID (Hugging Face Space owner/name)');
+      }
+      console.log(`[images] eileen — ZeroGPU Space ${spaceId}`);
+      return new EileenLoraImageProvider(spaceId);
 
     case 'gemini':
       if (!geminiKey) throw new Error('IMAGE_PROVIDER=gemini requires GEMINI_API_KEY');

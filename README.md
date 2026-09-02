@@ -8,13 +8,16 @@ medium, size and how fast they need it.
 
 | Layer     | Choice                                                     |
 | --------- | ---------------------------------------------------------- |
-| Frontend  | Vite 8, React 19, React Router 8 (declarative), TypeScript |
-| Styling   | Tailwind CSS v4 (CSS-first `@theme`, no config file)        |
-| Animation | Motion 12 (`motion/react`, formerly Framer Motion)          |
-| Backend   | Express 5, TypeScript, Zod                                  |
-| Images    | Pollinations (free, no key) · Gemini · `gpt-image-1` · mock  |
+| App       | Next.js 15 App Router (`apps/next`) — Vercel               |
+| Storefront | shadcn/ui + Magic UI + Motion; GSAP/Lenis on Home/Gallery |
+| Admin     | shadcn-only at `/admin` (or `admin.` hostname)             |
+| Data      | Supabase (Postgres, Auth allowlist, Storage) with memory fallback |
+| Shipping  | EasyPost test mode — rates at checkout, buy after accept   |
+| Images    | Eileen LoRA (ZeroGPU) · Pollinations · Gemini · `gpt-image-1` · mock |
 | Chat      | Heuristic (no key) · Gemini · Groq · OpenAI                  |
-| Payments  | Provider-agnostic adapter, currently simulated              |
+| Payments  | Simulated until Stripe is wired                            |
+
+Vite + Express remain in `apps/web` and `apps/api` as `npm run dev:legacy`.
 
 Deploying? See [DEPLOYMENT.md](./DEPLOYMENT.md) — Cloudflare Pages for the
 frontend, Render for the API, GitHub Actions for both.
@@ -26,19 +29,29 @@ npm install
 npm run dev
 ```
 
-- Web: http://localhost:5173
-- API: http://localhost:4000
+- Next gallery + admin: http://localhost:3000
+- Admin console: http://localhost:3000/admin (allowlisted inbox such as `eileen@example.com` + `ADMIN_DEV_PASS`)
 
-Vite proxies `/api` to the Express server, so the browser only ever talks to one
-origin and there is no CORS layer in development. This is also why sharing the
-dev server over a tunnel like ngrok works with no extra configuration: requests
-stay relative, and `localhost:4000` is resolved by Vite on your machine rather
-than by the visitor's browser.
+Copy `apps/next/.env.example` to `apps/next/.env.local` to add Supabase, EasyPost
+test keys, or Resend. The app runs without them (in-memory store, mock rates).
 
-In production the two are on different hosts, so `VITE_API_URL` is compiled into
-the bundle and requests become absolute. Leave it unset locally.
+Legacy Vite + Express: `npm run dev:legacy` (ports 5173 / 4000).
 
 Other scripts: `npm run build`, `npm run typecheck`.
+
+## Style LoRA (Unsloth on this Mac)
+
+Train locally on Flux.2-klein, push the adapter to Hugging Face, then serve
+it from RunPod serverless (`workers/runpod-eileen-lora/`). The Next studio
+uses that endpoint when `RUNPOD_API_KEY` and `RUNPOD_ENDPOINT_ID` are set.
+
+```bash
+./scripts/train-eileen-lora.sh --dir ./data/art_training
+./scripts/deploy-runpod-eileen.sh
+```
+
+Adapter repo: `ukryty/eileenart-lora`. Workers scale to zero (a few cents per
+hundred images). Restart `npm run dev` after adding the two RunPod names.
 
 ## Configuration
 
@@ -53,6 +66,7 @@ defaults avoid it entirely.
 
 | Provider                       | Cost                        | Key      | True editing | Notes                                       |
 | ------------------------------ | --------------------------- | -------- | ------------ | ------------------------------------------- |
+| **Eileen LoRA** *(style)*      | Free ZeroGPU quota          | HF token | No           | Needs `SPACE_ID` after you train            |
 | **Pollinations** *(default)*   | Free                        | None     | No           | ~1 request per 15s anonymously              |
 | **Gemini** *(recommended)*     | Free tier, no card          | One key  | **Yes**      | Also serves the chat layer                  |
 | OpenAI `gpt-image-1`           | ~$0.02–0.19 per image       | One key  | Yes          | Best quality                                |
@@ -143,7 +157,7 @@ apps/
   api/src/
     index.ts            Express app and routes
     catalog.ts          Mediums, sizes, rush tiers, quote engine
-    imageProvider.ts    Pollinations, Gemini, OpenAI, mock
+    imageProvider.ts    Eileen LoRA Space, Pollinations, Gemini, OpenAI, mock
     chatProvider.ts     Prompt rewriting + replies; Gemini, Groq, OpenAI
     paymentProvider.ts  PaymentProvider interface, placeholder
     testimonials.ts     Placeholder testimonial and gallery content
@@ -152,6 +166,8 @@ apps/
     components/         Layout, Hero, Process, Testimonials, BeforeAfter,
                         GalleryGrid, Configurator, Reveal, Seo
     lib/                api client, shared types
+spaces/eileen-lora/     Gradio Space that loads Flux.2-klein + the LoRA
+scripts/                Unsloth train / retrain / sample
 ```
 
 ## Before this handles real traffic

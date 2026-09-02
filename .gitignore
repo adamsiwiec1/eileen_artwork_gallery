@@ -2,7 +2,36 @@ node_modules/
 dist/
 *.tsbuildinfo
 .env
-.env.local
+.env.*
+!.env.example
+!**/.env.example
 *.log
 .DS_Store
 .vite/
+.next/
+__pycache__/
+*.pyc
+
+# Local Cursor project files
+.cursor/
+
+# Eileen's source paintings (never commit)
+eileen-images/
+Eileen - Images for Art Website/
+apps/web/public/paintings/
+apps/next/public/paintings/
+
+# Local Supabase CLI project (do not publish)
+/supabase/
+
+# Prepared LoRA dataset, checkpoints, adapters, weights
+data/eileen-lora/
+data/art_training/
+outputs/
+spaces/eileen-lora/lora/
+*.safetensors
+*.heic
+*.HEIC
+*.pt
+*.gguf
+*.bin

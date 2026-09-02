@@ -10,11 +10,17 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "dev": "concurrently -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev": "npm run dev --workspace @gallery/next",
+    "dev:next": "npm run dev --workspace @gallery/next",
+    "dev:legacy": "concurrently -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "npm run dev --workspace @gallery/api",
     "dev:web": "npm run dev --workspace @gallery/web",
-    "build": "npm run build --workspace @gallery/api && npm run build --workspace @gallery/web",
-    "typecheck": "npm run typecheck --workspace @gallery/api && npm run typecheck --workspace @gallery/web"
+    "build": "npm run build --workspace @gallery/next",
+    "typecheck": "npm run typecheck --workspace @gallery/next",
+    "lora:train": "bash scripts/train-eileen-lora.sh",
+    "lora:retrain": "bash scripts/retrain-eileen-lora.sh",
+    "lora:prepare": "bash scripts/prepare-eileen-lora-dataset.sh",
+    "lora:sample": "bash scripts/sample-eileen-lora.sh"
   },
   "devDependencies": {
     "concurrently": "^10.0.4"
