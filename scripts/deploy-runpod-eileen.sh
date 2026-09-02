@@ -22,7 +22,12 @@ or finish in the console:
 
   1. https://www.runpod.io/console/user/settings  → create an API key
   2. Wait for .github/workflows/runpod-eileen-lora.yml to push
-     ghcr.io/adamsiwiec1/eileen-lora:latest (public GHCR, linux/amd64).
+     ghcr.io/adamsiwiec1/eileen-lora:latest (linux/amd64). The first
+     package is private; GitHub has no API to flip user packages, so
+     open Package settings → Change visibility → Public
+     (https://github.com/users/adamsiwiec1/packages/container/package/eileen-lora/settings).
+     If Actions is billing-locked, build --platform linux/amd64 and
+     docker push those same tags locally instead.
   3. Create a QUEUE endpoint from that image via the RunPod MCP/API
      (name eileen-lora, 24 GB GPU pool, workers min 0 / max 1).
   4. Fallback: console GitHub import of this repo (Dockerfile + handler.py

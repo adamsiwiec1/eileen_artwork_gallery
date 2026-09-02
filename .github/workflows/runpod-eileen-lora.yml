@@ -59,3 +59,10 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
+
+      # User-owned GHCR packages default to private. There is no working
+      # API to flip visibility; do it once in the package settings UI.
+      - name: Remind to make the package public
+        run: |
+          echo "If this is the first publish, set ghcr.io/adamsiwiec1/eileen-lora public:"
+          echo "https://github.com/users/adamsiwiec1/packages/container/package/eileen-lora/settings"
