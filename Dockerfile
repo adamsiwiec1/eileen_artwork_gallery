@@ -1,10 +1,10 @@
-# Prefer the repo-root Dockerfile for RunPod GitHub import.
-# This copy stays valid if someone still points at this path.
+# RunPod GitHub import looks for ./Dockerfile on main.
+# Build context is the repo root.
 FROM runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04
 
 WORKDIR /
 
-COPY workers/runpod-eileen-lora/requirements.txt /requirements.txt
+COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 
 COPY handler.py /handler.py

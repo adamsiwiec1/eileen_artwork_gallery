@@ -20,8 +20,8 @@ or finish in the console:
   1. https://www.runpod.io/console/user/settings  → create an API key
   2. https://www.runpod.io/console/serverless     → New Endpoint
   3. New Endpoint → GitHub: adamsiwiec1/eileen_artwork_gallery (branch main)
-  4. Dockerfile path: workers/runpod-eileen-lora/Dockerfile
-     Preflight looks for ./handler.py on that branch. Wait a minute after push.
+  4. Dockerfile path: Dockerfile
+     Preflight looks for ./handler.py and ./Dockerfile on main. Wait a minute after push.
   5. Queue endpoint. GPU: 24 GB class (A5000 / 3090 / L4). Workers min 0, max 1.
      Idle timeout 5s. Execution timeout 600s. Container disk 40 GB.
   6. Endpoint environment (names only):
@@ -43,7 +43,7 @@ fi
 if [[ -z "$IMAGE" ]]; then
   echo "RUNPOD_API_KEY is set. Create the endpoint in the console (GitHub import), or set"
   echo "RUNPOD_IMAGE to a linux/amd64 image and re-run this script to create it via API."
-  echo "Dockerfile path: workers/runpod-eileen-lora/Dockerfile"
+  echo "Dockerfile path: Dockerfile"
   exit 0
 fi
 

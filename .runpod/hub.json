@@ -1,0 +1,42 @@
+{
+  "title": "Eileen art LoRA",
+  "description": "Flux.2-klein plus the private eileenart LoRA for the gallery studio.",
+  "type": "serverless",
+  "category": "image",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 40,
+    "gpuCount": 1,
+    "gpuIds": "ADA_24,AMPERE_24",
+    "allowedCudaVersions": [
+      "12.8",
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4"
+    ],
+    "env": [
+      {
+        "key": "EILEEN_LORA_REPO",
+        "value": "ukryty/eileenart-lora"
+      },
+      {
+        "key": "EILEEN_BASE_MODEL",
+        "value": "black-forest-labs/FLUX.2-klein-base-4B"
+      },
+      {
+        "key": "EILEEN_TRIGGER",
+        "value": "eileenart"
+      },
+      {
+        "key": "HF_TOKEN",
+        "input": {
+          "name": "Hugging Face token",
+          "type": "string",
+          "description": "Must read FLUX.2-klein-base-4B and ukryty/eileenart-lora",
+          "required": true
+        }
+      }
+    ]
+  }
+}

@@ -90,7 +90,7 @@ def to_png_b64(image: Image.Image) -> str:
     return base64.b64encode(buf.getvalue()).decode("ascii")
 
 
-def handler(job: dict[str, Any]) -> dict[str, Any]:
+def handler(job):
     inp = job.get("input") or {}
     if not isinstance(inp, dict):
         return {"error": "input must be an object"}
