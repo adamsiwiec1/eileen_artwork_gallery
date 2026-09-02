@@ -19,8 +19,9 @@ or finish in the console:
 
   1. https://www.runpod.io/console/user/settings  → create an API key
   2. https://www.runpod.io/console/serverless     → New Endpoint
-  3. Import Git Repository: adamsiwiec1/eileen_artwork_gallery
+  3. New Endpoint → GitHub: adamsiwiec1/eileen_artwork_gallery (branch main)
   4. Dockerfile path: workers/runpod-eileen-lora/Dockerfile
+     Preflight looks for ./handler.py on that branch. Wait a minute after push.
   5. Queue endpoint. GPU: 24 GB class (A5000 / 3090 / L4). Workers min 0, max 1.
      Idle timeout 5s. Execution timeout 600s. Container disk 40 GB.
   6. Endpoint environment (names only):

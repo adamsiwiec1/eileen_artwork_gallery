@@ -1,4 +1,4 @@
-"""RunPod queue worker: Flux.2-klein + Eileen style LoRA."""
+"""RunPod queue worker. This file must live at the repo root on main."""
 
 from __future__ import annotations
 
