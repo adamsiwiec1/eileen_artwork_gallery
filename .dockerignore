@@ -1,0 +1,4 @@
+# Worker image only needs the root handler and its pip deps.
+*
+!handler.py
+!requirements.txt

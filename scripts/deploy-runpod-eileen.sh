@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Print the RunPod console steps (and optionally create an endpoint from an image).
+# Print the RunPod steps (and optionally create an endpoint from an image).
+# Default path: GitHub Actions builds linux/amd64 and pushes
+# ghcr.io/adamsiwiec1/eileen-lora. Create the QUEUE endpoint from that
+# public GHCR image via the RunPod MCP/API (not GitHub import).
 # Does not print secret values. Add RUNPOD_API_KEY to the environment first.
 set -euo pipefail
 
@@ -18,12 +21,14 @@ Add RUNPOD_API_KEY to this shell (do not paste it into chat), then re-run
 or finish in the console:
 
   1. https://www.runpod.io/console/user/settings  → create an API key
-  2. https://www.runpod.io/console/serverless     → New Endpoint
-  3. New Endpoint → GitHub: adamsiwiec1/eileen_artwork_gallery (branch main)
-  4. Dockerfile path: Dockerfile
-     Preflight looks for ./handler.py and ./Dockerfile on main. Wait a minute after push.
-  5. Queue endpoint. GPU: 24 GB class (A5000 / 3090 / L4). Workers min 0, max 1.
-     Idle timeout 5s. Execution timeout 600s. Container disk 40 GB.
+  2. Wait for .github/workflows/runpod-eileen-lora.yml to push
+     ghcr.io/adamsiwiec1/eileen-lora:latest (public GHCR, linux/amd64).
+  3. Create a QUEUE endpoint from that image via the RunPod MCP/API
+     (name eileen-lora, 24 GB GPU pool, workers min 0 / max 1).
+  4. Fallback: console GitHub import of this repo (Dockerfile + handler.py
+     on main). Preflight looks for both files at the repo root.
+  5. GPU: 24 GB class (A5000 / 3090 / L4). Idle timeout 5s.
+     Execution timeout 600s. Container disk 40 GB.
   6. Endpoint environment (names only):
        HF_TOKEN                 (same Hugging Face login that can read
                                  black-forest-labs/FLUX.2-klein-base-4B and
@@ -41,9 +46,10 @@ EOF
 fi
 
 if [[ -z "$IMAGE" ]]; then
-  echo "RUNPOD_API_KEY is set. Create the endpoint in the console (GitHub import), or set"
-  echo "RUNPOD_IMAGE to a linux/amd64 image and re-run this script to create it via API."
-  echo "Dockerfile path: Dockerfile"
+  echo "RUNPOD_API_KEY is set. Default image is the public GHCR build from"
+  echo "GitHub Actions: ghcr.io/adamsiwiec1/eileen-lora:latest"
+  echo "Set RUNPOD_IMAGE to that (or another linux/amd64 image) and re-run"
+  echo "to create the endpoint via API, or create it with the RunPod MCP."
   exit 0
 fi
 
