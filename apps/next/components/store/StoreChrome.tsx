@@ -22,6 +22,7 @@ const links = [
   { to: '/', label: 'Home' },
   { to: '/#about', label: 'About' },
   { to: '/gallery', label: 'Gallery' },
+  { to: '/story', label: 'My Story' },
 ];
 
 function Header() {
