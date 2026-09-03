@@ -47,52 +47,126 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  --color-canvas: #0b0a09;
-  --color-canvas-2: #141210;
-  --color-canvas-3: #1e1a17;
-  --color-ink: #f5f0e8;
-  --color-ink-muted: #a89f92;
-  --color-gilt: #c8a468;
-  --color-gilt-bright: #e6c78d;
-  --color-rose: #b8654f;
-  --color-verdigris: #5f7d6e;
+  /* Palette tokens — the storefront reads every colour through these.
+     Values live in :root (default) and swap per [data-theme] below. */
+  --color-canvas: var(--canvas);
+  --color-canvas-2: var(--canvas-2);
+  --color-canvas-3: var(--canvas-3);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-gilt: var(--gilt);
+  --color-gilt-bright: var(--gilt-bright);
+  --color-rose: var(--rose);
+  --color-verdigris: var(--verdigris);
+  --color-periwinkle: var(--periwinkle);
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
-  --background: oklch(0.985 0.005 90);
-  --foreground: oklch(0.2 0.02 50);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 50);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 50);
-  --primary: oklch(0.45 0.08 75);
-  --primary-foreground: oklch(0.99 0.01 90);
-  --secondary: oklch(0.96 0.01 90);
-  --secondary-foreground: oklch(0.25 0.02 50);
-  --muted: oklch(0.96 0.01 90);
-  --muted-foreground: oklch(0.5 0.02 60);
-  --accent: oklch(0.95 0.03 80);
-  --accent-foreground: oklch(0.25 0.02 50);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0.015 80);
-  --input: oklch(0.9 0.015 80);
-  --ring: oklch(0.65 0.08 75);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: oklch(0.97 0.018 310);
+  --foreground: oklch(0.24 0.05 290);
+  --card: oklch(0.99 0.012 320);
+  --card-foreground: oklch(0.24 0.05 290);
+  --popover: oklch(0.99 0.012 320);
+  --popover-foreground: oklch(0.24 0.05 290);
+  --primary: oklch(0.48 0.12 325);
+  --primary-foreground: oklch(0.99 0.01 320);
+  --secondary: oklch(0.94 0.025 300);
+  --secondary-foreground: oklch(0.26 0.05 290);
+  --muted: oklch(0.94 0.022 300);
+  --muted-foreground: oklch(0.45 0.05 300);
+  --accent: oklch(0.93 0.04 310);
+  --accent-foreground: oklch(0.26 0.05 290);
+  --destructive: oklch(0.55 0.18 12);
+  --border: oklch(0.88 0.03 310);
+  --input: oklch(0.88 0.03 310);
+  --ring: oklch(0.58 0.1 320);
+  --chart-1: oklch(0.68 0.12 340);
+  --chart-2: oklch(0.6 0.12 300);
+  --chart-3: oklch(0.56 0.1 260);
+  --chart-4: oklch(0.72 0.08 320);
+  --chart-5: oklch(0.42 0.08 280);
   --radius: 0.5rem;
-  --sidebar: oklch(0.985 0.005 90);
-  --sidebar-foreground: oklch(0.2 0.02 50);
-  --sidebar-primary: oklch(0.45 0.08 75);
-  --sidebar-primary-foreground: oklch(0.99 0.01 90);
-  --sidebar-accent: oklch(0.95 0.03 80);
-  --sidebar-accent-foreground: oklch(0.25 0.02 50);
-  --sidebar-border: oklch(0.9 0.015 80);
-  --sidebar-ring: oklch(0.65 0.08 75);
+  --sidebar: oklch(0.97 0.018 310);
+  --sidebar-foreground: oklch(0.24 0.05 290);
+  --sidebar-primary: oklch(0.48 0.12 325);
+  --sidebar-primary-foreground: oklch(0.99 0.01 320);
+  --sidebar-accent: oklch(0.93 0.04 310);
+  --sidebar-accent-foreground: oklch(0.26 0.05 290);
+  --sidebar-border: oklch(0.88 0.03 310);
+  --sidebar-ring: oklch(0.58 0.1 320);
+}
+
+/* ------------------------------------------------------------------ *
+ * Switchable palettes. Every storefront colour resolves to one of the
+ * tokens below, so setting data-theme on <html> recolours the whole
+ * site. Defaults (Dusk) also live on :root for no-JS / first paint.
+ * ------------------------------------------------------------------ */
+:root,
+[data-theme='dusk'] {
+  --canvas: #0b0a14;
+  --canvas-2: #14111e;
+  --canvas-3: #1e1730;
+  --ink: #f3eef8;
+  --ink-muted: #b4a8c8;
+  --gilt: #d2a3c4;
+  --gilt-bright: #ebc6de;
+  --rose: #c45d7a;
+  --verdigris: #7e94cc;
+  --periwinkle: #9aafdc;
+}
+
+[data-theme='gilt'] {
+  --canvas: #0f0b06;
+  --canvas-2: #191207;
+  --canvas-3: #251a0d;
+  --ink: #f8f0e1;
+  --ink-muted: #cbb489;
+  --gilt: #d7a94f;
+  --gilt-bright: #f1cf83;
+  --rose: #d1774f;
+  --verdigris: #b7a25f;
+  --periwinkle: #cbb072;
+}
+
+[data-theme='ocean'] {
+  --canvas: #04121a;
+  --canvas-2: #071f2b;
+  --canvas-3: #0b2c3b;
+  --ink: #e8f6fb;
+  --ink-muted: #9ec2d1;
+  --gilt: #57b3c2;
+  --gilt-bright: #93d8e4;
+  --rose: #e08469;
+  --verdigris: #49a29c;
+  --periwinkle: #6aa8d8;
+}
+
+[data-theme='mono'] {
+  --canvas: #0b0b0c;
+  --canvas-2: #141416;
+  --canvas-3: #1f1f22;
+  --ink: #f5f5f6;
+  --ink-muted: #a6a6ab;
+  --gilt: #c8bcae;
+  --gilt-bright: #e7ddd0;
+  --rose: #c58f8f;
+  --verdigris: #8d99a2;
+  --periwinkle: #b9bdc5;
+}
+
+[data-theme='rose'] {
+  --canvas: #150713;
+  --canvas-2: #210c1c;
+  --canvas-3: #2e1228;
+  --ink: #fbedf3;
+  --ink-muted: #d6a8c1;
+  --gilt: #e5a1b6;
+  --gilt-bright: #f6c8d6;
+  --rose: #db6089;
+  --verdigris: #b07fbb;
+  --periwinkle: #cb8fc6;
 }
 
 @layer base {
@@ -127,21 +201,51 @@
 }
 
 @utility bg-weave {
+  background-color: var(--color-canvas);
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.014) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
-  background-size: 3px 3px;
+    linear-gradient(color-mix(in oklab, var(--color-gilt) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-periwinkle) 7%, transparent) 1px, transparent 1px),
+    radial-gradient(
+      ellipse 80% 50% at 8% -8%,
+      color-mix(in oklab, var(--color-rose) 20%, transparent),
+      transparent 56%
+    ),
+    radial-gradient(
+      ellipse 55% 40% at 96% 8%,
+      color-mix(in oklab, var(--color-verdigris) 16%, transparent),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 50% 32% at 50% 108%,
+      color-mix(in oklab, var(--color-gilt) 12%, transparent),
+      transparent 58%
+    );
+  background-size:
+    3px 3px,
+    3px 3px,
+    auto,
+    auto,
+    auto;
 }
 
 @utility gilt-rule {
   background-image: linear-gradient(
     90deg,
     transparent,
-    var(--color-gilt) 20%,
+    var(--color-rose) 18%,
+    var(--color-gilt) 40%,
     var(--color-gilt-bright) 50%,
-    var(--color-gilt) 80%,
+    var(--color-periwinkle) 68%,
+    var(--color-verdigris) 82%,
     transparent
   );
+}
+
+@utility admin-wash {
+  background-image:
+    radial-gradient(ellipse 70% 42% at 0% 0%, oklch(0.86 0.07 340 / 0.42), transparent 52%),
+    radial-gradient(ellipse 55% 38% at 100% 0%, oklch(0.86 0.06 260 / 0.32), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 50% 100%, oklch(0.88 0.05 310 / 0.28), transparent 55%);
 }
 
 @keyframes marquee {
