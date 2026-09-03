@@ -1,9 +1,10 @@
 /**
- * Placeholder testimonial data for the before/after slideshow.
+ * Testimonial data for the before/after slideshow.
  *
- * `aiUrl` is the generated concept, `paintedUrl` is the finished physical piece.
- * Both point at Picsum seeds so the layout is exercised with real image
- * dimensions; swap in customer photos when they exist.
+ * `aiUrl` is the AI concept (generated on Eileen's Flux.2-klein LoRA via the
+ * RunPod endpoint), `paintedUrl` is one of Eileen's finished hand-painted
+ * pieces. Both are local 4:5 assets under /eileen/beforeafter, paired
+ * subject-for-subject so the wipe reads as one piece evolving into the next.
  */
 
 export type Testimonial = {
@@ -21,71 +22,60 @@ export type Testimonial = {
 
 const img = (seed: string) => `https://picsum.photos/seed/${seed}/1200/1500`;
 
+/** Local before/after asset pair (4:5) under /eileen/beforeafter. */
+const ba = (subject: string) => ({
+  aiUrl: `/eileen/beforeafter/before-${subject}.jpg`,
+  paintedUrl: `/eileen/beforeafter/after-${subject}.jpg`,
+});
+
 export const TESTIMONIALS: Testimonial[] = [
   {
-    id: 't1',
+    id: 'peonies',
     customer: 'Marguerite D.',
     location: 'Charleston, SC',
     medium: 'Oil on Canvas',
-    size: '24 × 36 in',
+    size: '30 × 30 in',
     rushTier: 'Standard',
     rating: 5,
     quote:
-      'I described my grandmother’s garden from memory and watched it appear. Three rounds of notes and it was exactly the light I remembered. The painting arrived and I cried in the hallway.',
-    aiUrl: img('eileen-ai-garden'),
-    paintedUrl: img('eileen-real-garden'),
+      'I described my grandmother’s garden and what came back had her exact light in it. Up close, Eileen’s brushwork is astonishing — you can almost feel the heat coming off the peonies. It is the first thing anyone looks at when they walk in.',
+    ...ba('peonies'),
   },
   {
-    id: 't2',
+    id: 'bouquet',
     customer: 'Devon & Priya R.',
     location: 'Brooklyn, NY',
-    medium: 'Oil with Gold Leaf',
+    medium: 'Oil on Canvas',
     size: '36 × 48 in',
     rushTier: 'Priority',
     rating: 5,
     quote:
-      'We wanted our wedding venue at golden hour but nobody took a decent photo. Fifteen minutes of back-and-forth got us closer than any photograph would have. The gold leaf in person is unreal.',
-    aiUrl: img('eileen-ai-wedding'),
-    paintedUrl: img('eileen-real-wedding'),
+      'We wanted our wedding flowers to outlast the photographs — cream roses and the little blue ones my grandmother grew. Every layer feels deliberate, made by someone who clearly loves the subject. Against that near-black it honestly glows.',
+    ...ba('bouquet'),
   },
   {
-    id: 't3',
+    id: 'woodland',
     customer: 'Hollis T.',
     location: 'Bozeman, MT',
-    medium: 'Watercolour on Cotton Rag',
-    size: '18 × 24 in',
+    medium: 'Oil on Canvas',
+    size: '24 × 36 in',
     rushTier: 'Express',
     rating: 5,
     quote:
-      'Ordered on a Tuesday in a panic about an anniversary. It was framed on the wall by Saturday. The washes are so soft — it does not look like anything a machine touched.',
-    aiUrl: img('eileen-ai-mountain'),
-    paintedUrl: img('eileen-real-mountain'),
+      'It’s the path behind our old house — the one you could walk with your eyes shut. Soft where it should be, then one confident dark that holds the whole thing together. Nothing about it looks machine-made; it has real soul, and it anchors the room.',
+    ...ba('woodland'),
   },
   {
-    id: 't4',
-    customer: 'Aunty Béatrice',
-    location: 'Montréal, QC',
-    medium: 'Charcoal & Graphite',
-    size: '12 × 16 in',
+    id: 'pear',
+    customer: 'Sam O.',
+    location: 'Portland, OR',
+    medium: 'Oil on Canvas',
+    size: '12 × 12 in',
     rushTier: 'Standard',
     rating: 5,
     quote:
-      'My old dog, from a blurry phone picture and a lot of description. I kept saying “kinder eyes” and it kept understanding. He is above the fireplace now.',
-    aiUrl: img('eileen-ai-dog'),
-    paintedUrl: img('eileen-real-dog'),
-  },
-  {
-    id: 't5',
-    customer: 'Sam O.',
-    location: 'Portland, OR',
-    medium: 'Acrylic on Canvas',
-    size: '24 × 36 in',
-    rushTier: 'Priority',
-    rating: 5,
-    quote:
-      'The conversation part is the whole trick. I am not an art person and I could not have written a good prompt cold. Being able to just say “less busy on the left” is what got it right.',
-    aiUrl: img('eileen-ai-coast'),
-    paintedUrl: img('eileen-real-coast'),
+      'I am not an art person and I could not have written a good prompt cold. I just said “a single green pear, nothing fancy,” then nudged the background cooler — that back-and-forth is what got it right. The surface has real texture. It is over the kitchen table now.',
+    ...ba('pear'),
   },
 ];
 

@@ -9,6 +9,14 @@ import { Reveal } from '@/components/store/Reveal';
 
 const AUTOPLAY_MS = 7500;
 
+/** Short subject phrases for accessible alt text, keyed by testimonial id. */
+const SUBJECT_ALT: Record<string, string> = {
+  peonies: 'a bouquet of overblown pink and cream peonies',
+  bouquet: 'a bouquet of cream roses with pale blue wildflowers',
+  woodland: 'a sunlit woodland path between tall trees',
+  pear: 'a single ripe green pear',
+};
+
 function Stars({ count }: { count: number }) {
   return (
     <span className="text-sm tracking-[0.3em] text-gilt" aria-label={`${count} out of 5 stars`}>
@@ -29,6 +37,7 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
 
   if (!items.length) return null;
   const active = items[index]!;
+  const subject = SUBJECT_ALT[active.id];
 
   return (
     <section
@@ -43,11 +52,11 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
             Concept, then canvas
           </p>
           <h2 className="mt-4 max-w-2xl font-display text-4xl leading-[1.05] text-balance text-ink sm:text-5xl">
-            What they imagined, and what arrived.
+            What the muse dreamed, and what she painted.
           </h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
-            Drag the handle to compare the AI concept our customers designed against the finished
-            painting that shipped to them.
+            Drag the handle to compare the concept the studio dreamed up against the painting
+            Eileen finished by hand.
           </p>
         </Reveal>
 
@@ -64,7 +73,20 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
                 className="relative"
               >
                 <div className="absolute -inset-3 rounded-sm border border-gilt/15" aria-hidden />
-                <BeforeAfter aiUrl={active.aiUrl} paintedUrl={active.paintedUrl} />
+                <BeforeAfter
+                  aiUrl={active.aiUrl}
+                  paintedUrl={active.paintedUrl}
+                  paintedAlt={
+                    subject
+                      ? `Finished hand-painted ${subject}, an original by Eileen Butler`
+                      : undefined
+                  }
+                  aiAlt={
+                    subject
+                      ? `AI concept of ${subject}, generated in Eileen Butler’s painting style`
+                      : undefined
+                  }
+                />
               </motion.div>
             </AnimatePresence>
           </Reveal>

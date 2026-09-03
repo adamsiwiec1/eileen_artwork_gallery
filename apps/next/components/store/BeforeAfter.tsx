@@ -1,108 +1,266 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion } from 'motion/react';
 
 type Props = {
   aiUrl: string;
   paintedUrl: string;
+  /** Alt text for the finished painting layer. */
+  paintedAlt?: string;
+  /** Alt text for the AI concept layer. */
+  aiAlt?: string;
   /** Starting reveal position, 0–100. */
   initial?: number;
 };
 
+/** Swap a local `.jpg` asset for its `.webp` sibling; `undefined` for remote/other. */
+function webpSibling(url: string): string | undefined {
+  return url.startsWith('/') && url.endsWith('.jpg') ? url.replace(/\.jpg$/, '.webp') : undefined;
+}
+
+function clampReveal(value: number) {
+  return Math.min(100, Math.max(0, value));
+}
+
 /**
  * Drag-to-compare between the AI concept and the finished painting.
  *
- * Pointer position is written straight to state rather than through a motion
- * value because the clip-path and the handle must stay pixel-locked while
- * dragging — a spring on either one makes them visibly separate.
+ * Position is a CSS variable painted in rAF (no React re-render per move).
+ * The handle rides a full-width track via translate3d so we never set `left`
+ * or width during a drag — those force layout on every frame.
  */
-export function BeforeAfter({ aiUrl, paintedUrl, initial = 55 }: Props) {
-  const [reveal, setReveal] = useState(initial);
-  const [dragging, setDragging] = useState(false);
+export function BeforeAfter({
+  aiUrl,
+  paintedUrl,
+  paintedAlt = 'The finished hand-painted commission',
+  aiAlt = 'The AI-generated concept the customer designed',
+  initial = 55,
+}: Props) {
+  const paintedWebp = webpSibling(paintedUrl);
+  const aiWebp = webpSibling(aiUrl);
   const frameRef = useRef<HTMLDivElement>(null);
+  const revealRef = useRef(initial);
+  const rectRef = useRef<DOMRect | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const pendingXRef = useRef<number | null>(null);
+  const originRef = useRef<{ x: number; y: number } | null>(null);
+  const pointerIdRef = useRef<number | null>(null);
+  const lockedRef = useRef(false);
+  const [dragging, setDragging] = useState(false);
+  const [announced, setAnnounced] = useState(initial);
 
-  const setFromClientX = useCallback((clientX: number) => {
-    const rect = frameRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const pct = ((clientX - rect.left) / rect.width) * 100;
-    setReveal(Math.min(100, Math.max(0, pct)));
+  const paintReveal = useCallback((pct: number) => {
+    revealRef.current = pct;
+    frameRef.current?.style.setProperty('--reveal', `${pct}%`);
   }, []);
 
+  const flushPending = useCallback(() => {
+    rafRef.current = null;
+    const clientX = pendingXRef.current;
+    const rect = rectRef.current;
+    if (clientX == null || !rect || rect.width === 0) return;
+    paintReveal(clampReveal(((clientX - rect.left) / rect.width) * 100));
+  }, [paintReveal]);
+
+  const queueFromClientX = useCallback(
+    (clientX: number) => {
+      pendingXRef.current = clientX;
+      if (rafRef.current == null) {
+        rafRef.current = window.requestAnimationFrame(flushPending);
+      }
+    },
+    [flushPending],
+  );
+
+  const measure = useCallback(() => {
+    rectRef.current = frameRef.current?.getBoundingClientRect() ?? null;
+  }, []);
+
+  const finishDrag = useCallback(
+    (node: HTMLDivElement, pointerId: number) => {
+      if (pointerIdRef.current !== pointerId) return;
+      pointerIdRef.current = null;
+      originRef.current = null;
+      lockedRef.current = false;
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (pendingXRef.current != null) flushPending();
+      pendingXRef.current = null;
+      setDragging(false);
+      setAnnounced(Math.round(revealRef.current));
+      node.style.touchAction = '';
+      if (node.hasPointerCapture(pointerId)) {
+        node.releasePointerCapture(pointerId);
+      }
+    },
+    [flushPending],
+  );
+
+  const lockDrag = useCallback(
+    (node: HTMLDivElement, pointerId: number, clientX: number) => {
+      if (lockedRef.current) return;
+      lockedRef.current = true;
+      measure();
+      node.style.touchAction = 'none';
+      try {
+        node.setPointerCapture(pointerId);
+      } catch {
+        // Untrusted or already-released pointers still update via move/up.
+      }
+      setDragging(true);
+      queueFromClientX(clientX);
+    },
+    [measure, queueFromClientX],
+  );
+
+  // Native touchmove must be non-passive so we can block vertical scroll
+  // after the gesture has locked onto the wipe.
   useEffect(() => {
     if (!dragging) return;
+    const blockScroll = (e: TouchEvent) => e.preventDefault();
+    document.addEventListener('touchmove', blockScroll, { passive: false });
+    return () => document.removeEventListener('touchmove', blockScroll);
+  }, [dragging]);
 
-    const onMove = (e: PointerEvent) => setFromClientX(e.clientX);
-    const onUp = () => setDragging(false);
-
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onUp);
+  useEffect(() => {
     return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
     };
-  }, [dragging, setFromClientX]);
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    measure();
+    originRef.current = { x: e.clientX, y: e.clientY };
+    pointerIdRef.current = e.pointerId;
+    const onHandle = Boolean((e.target as HTMLElement).closest('[data-ba-handle]'));
+    if (onHandle || e.pointerType === 'mouse') {
+      lockDrag(e.currentTarget, e.pointerId, e.clientX);
+      e.preventDefault();
+    }
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerIdRef.current !== e.pointerId) return;
+    if (lockedRef.current) {
+      queueFromClientX(e.clientX);
+      return;
+    }
+    const origin = originRef.current;
+    if (!origin) return;
+    const dx = e.clientX - origin.x;
+    const dy = e.clientY - origin.y;
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      lockDrag(e.currentTarget, e.pointerId, e.clientX);
+      e.preventDefault();
+    } else {
+      pointerIdRef.current = null;
+      originRef.current = null;
+    }
+  };
+
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    finishDrag(e.currentTarget, e.pointerId);
+  };
+
+  const onLostPointerCapture = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerIdRef.current !== e.pointerId) return;
+    finishDrag(e.currentTarget, e.pointerId);
+  };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     const step = e.shiftKey ? 10 : 4;
-    if (e.key === 'ArrowLeft') setReveal((r) => Math.max(0, r - step));
-    if (e.key === 'ArrowRight') setReveal((r) => Math.min(100, r + step));
+    let next = revealRef.current;
+    if (e.key === 'ArrowLeft') next = clampReveal(next - step);
+    else if (e.key === 'ArrowRight') next = clampReveal(next + step);
+    else return;
+    e.preventDefault();
+    paintReveal(next);
+    setAnnounced(Math.round(next));
   };
 
   return (
     <div
       ref={frameRef}
-      className="group relative aspect-4/5 w-full cursor-ew-resize overflow-hidden rounded-sm bg-canvas-3 select-none"
-      onPointerDown={(e) => {
-        setDragging(true);
-        setFromClientX(e.clientX);
-      }}
+      data-lenis-prevent
+      data-dragging={dragging || undefined}
+      style={{ '--reveal': `${initial}%` } as React.CSSProperties}
+      className="group relative aspect-4/5 w-full touch-pan-y cursor-ew-resize overflow-hidden rounded-sm bg-canvas-3 select-none [contain:layout_style_paint] data-[dragging]:cursor-grabbing"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onLostPointerCapture={onLostPointerCapture}
     >
-      <img
-        src={paintedUrl}
-        alt="The finished hand-painted commission"
-        className="absolute inset-0 h-full w-full object-cover"
-        loading="lazy"
-        decoding="async"
-      />
+      <picture>
+        {paintedWebp && <source srcSet={paintedWebp} type="image/webp" />}
+        <img
+          src={paintedUrl}
+          alt={paintedAlt}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      </picture>
 
       <div
         className="absolute inset-0"
-        style={{ clipPath: `inset(0 ${100 - reveal}% 0 0)` }}
+        style={{
+          clipPath: 'inset(0 calc(100% - var(--reveal)) 0 0)',
+          willChange: dragging ? 'clip-path' : undefined,
+        }}
       >
-        <img
-          src={aiUrl}
-          alt="The AI-generated concept the customer designed"
-          className="h-full w-full object-cover"
-          loading="lazy"
-          decoding="async"
-        />
-        {/* Cool wash so the concept side reads as distinct from the painting. */}
+        <picture>
+          {aiWebp && <source srcSet={aiWebp} type="image/webp" />}
+          <img
+            src={aiUrl}
+            alt={aiAlt}
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-br from-verdigris/12 to-transparent" />
       </div>
 
+      {/* Full-width track: translate3d(%) is relative to the track, not the knob. */}
       <div
-        className="pointer-events-none absolute inset-y-0 w-px bg-gilt/80 shadow-[0_0_18px_2px] shadow-gilt/40"
-        style={{ left: `${reveal}%` }}
-      />
-
-      <motion.div
-        role="slider"
-        tabIndex={0}
-        aria-label="Reveal the AI concept versus the finished painting"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.round(reveal)}
-        onKeyDown={onKeyDown}
-        animate={{ scale: dragging ? 1.12 : 1 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="absolute top-1/2 z-10 grid size-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-gilt/60 bg-canvas/70 backdrop-blur-md focus:outline-none focus-visible:ring-2 focus-visible:ring-gilt"
-        style={{ left: `${reveal}%` }}
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-full"
+        style={{
+          transform: 'translate3d(var(--reveal), 0, 0)',
+          willChange: dragging ? 'transform' : undefined,
+        }}
       >
-        <span className="text-xs tracking-widest text-gilt-bright">◂▸</span>
-      </motion.div>
+        <div className="absolute inset-y-0 left-0 w-px -translate-x-1/2 bg-gilt/80 shadow-[0_0_18px_2px] shadow-gilt/40" />
+
+        {/* Full-height 44px grab strip so the divider is easy to catch on a phone. */}
+        <div
+          data-ba-handle
+          aria-hidden
+          className="pointer-events-auto absolute inset-y-0 left-0 z-10 w-11 -translate-x-1/2 touch-none"
+        />
+
+        <div
+          data-ba-handle
+          role="slider"
+          tabIndex={0}
+          aria-label="Reveal the AI concept versus the finished painting"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={announced}
+          onKeyDown={onKeyDown}
+          className={`pointer-events-auto absolute top-1/2 left-0 z-20 grid size-11 min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 touch-none place-items-center rounded-full border border-gilt/60 bg-canvas/70 backdrop-blur-md transition-transform duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-gilt ${
+            dragging ? 'scale-110' : 'scale-100'
+          }`}
+        >
+          <span className="text-xs tracking-widest text-gilt-bright">◂▸</span>
+        </div>
+      </div>
 
       <span className="pointer-events-none absolute top-4 left-4 rounded-full border border-white/10 bg-canvas/70 px-3 py-1 text-[0.6rem] tracking-[0.2em] text-ink-muted uppercase backdrop-blur-sm">
         AI concept
