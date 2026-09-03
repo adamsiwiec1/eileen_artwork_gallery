@@ -6,7 +6,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Describe it',
-    body: 'A sentence is enough. “My grandmother’s garden in August.” Our studio AI renders a first concept in seconds.',
+    body: 'A sentence is enough — “my grandmother’s garden in August.” An AI shaped on Eileen’s own work answers with a first concept in her style.',
   },
   {
     n: '02',
@@ -20,8 +20,8 @@ const STEPS = [
   },
   {
     n: '04',
-    title: 'We paint it',
-    body: 'A human artist paints your concept by hand. Standard is 14–30 days; pay to jump the queue if you are on a deadline.',
+    title: 'Have her paint it',
+    body: 'Love it enough to own it? Eileen paints your concept by hand. Standard is 14–30 days; jump the queue if you’re on a deadline.',
   },
 ];
 

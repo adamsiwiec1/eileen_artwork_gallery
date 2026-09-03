@@ -95,8 +95,9 @@ function Footer() {
         <div className="sm:col-span-2">
           <p className="font-display text-2xl text-ink">Eileen Butler</p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-muted">
-            The East Coast painter people ask for, because she likes making the picture for you.
-            Gardens, harbours, motorcycles and cars — every piece is one of one.
+            One of the East Coast’s most celebrated painters, working on instinct. Her studio muse
+            dreams up an original in her style; refine it, and have her paint it by hand. Every
+            piece she paints is one of one.
           </p>
         </div>
         <div>

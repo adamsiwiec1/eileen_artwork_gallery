@@ -24,8 +24,8 @@ function LeadTimes({ tiers }: { tiers: RushTier[] }) {
             On a deadline? Move to the front of the bench.
           </h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
-            Every commission is painted by hand, so timing is a real constraint rather than a
-            shipping option. Pay to reprioritise the studio queue.
+            Each piece Eileen paints is made by hand, so timing is a real constraint rather than a
+            shipping option. Pay to move your commission up the studio queue.
           </p>
         </Reveal>
         <RevealGroup className="mt-14 grid gap-4 md:grid-cols-3">
@@ -98,11 +98,12 @@ export default function HomePage() {
               Eileen Butler.
             </h2>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink-muted">
-              On the East Coast they call her the best, and they say it the way you say a friend’s
-              name. She paints because she likes making something for someone. A grandmother’s
-              garden. A harbour from the kitchen window. The motorcycle that carried you home.
-              Chrome and weather sit as easily in her hand as peonies. Every commission is one of
-              one, and it is yours before the first stroke.
+              On the East Coast she’s counted among the finest working today, and she paints on
+              instinct — chasing what moves her rather than what’s asked. A grandmother’s garden
+              gone to seed, a harbour from the kitchen window, the motorcycle that carried you home.
+              Chrome and weather sit as easily in her hand as peonies. This studio is how she lets
+              you in: an AI shaped on her own paintings dreams up an original in her spirit, you
+              refine it, and — if it becomes something you can’t put down — she’ll paint it by hand.
             </p>
           </Reveal>
           <Reveal>

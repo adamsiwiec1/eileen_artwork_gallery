@@ -48,7 +48,7 @@ export function Hero() {
           />
         </motion.figure>
 
-        <div className="order-1 text-center lg:order-2 lg:text-left">
+        <div className="order-1 min-w-0 text-center lg:order-2 lg:text-left">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -64,9 +64,9 @@ export function Hero() {
             transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="mt-7 font-display text-5xl leading-[0.98] font-light tracking-tight text-balance text-ink sm:text-6xl md:text-7xl"
           >
-            The painting you
-            <span className="block italic text-gilt-bright">already see</span>
-            in your head.
+            The painting
+            <span className="block italic text-gilt-bright">she’d imagine</span>
+            for you.
           </motion.h1>
 
           <motion.p
@@ -75,9 +75,10 @@ export function Hero() {
             transition={{ duration: 0.9, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-balance text-ink-muted lg:mx-0"
           >
-            Tell Eileen Butler what you already see. She likes making paintings for people — that is
-            why they like hers. A garden, a harbour, the motorcycle or car you cannot stop looking at.
-            Then she paints it by hand and sends it home.
+            Eileen Butler is among the East Coast’s most sought-after painters, and she works on
+            instinct — painting what moves her, not what’s asked. So she built this: an AI shaped on
+            her own body of work, dreaming up an original the way she might. Refine it until it’s
+            yours — then, if you like, have her paint it by hand.
           </motion.p>
 
           <motion.form

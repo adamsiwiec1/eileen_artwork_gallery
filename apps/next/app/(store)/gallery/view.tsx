@@ -18,13 +18,14 @@ export function GalleryView() {
   return (
     <div className="mx-auto max-w-7xl px-6 pt-32 pb-24">
       <BlurFade>
-        <p className="text-[0.65rem] tracking-[0.3em] text-gilt uppercase">The gallery</p>
+        <p className="text-[0.65rem] tracking-[0.3em] text-gilt uppercase">The gallery · Eileen Butler</p>
         <h1 className="mt-4 max-w-2xl font-display text-5xl leading-[1.02] text-balance text-ink sm:text-6xl">
-          Every one of these started as a sentence.
+          Pictures she painted for herself.
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-muted">
-          A selection of recent commissions. Each was designed in conversation by the person who
-          ordered it, then painted by hand in our studio.
+          Work from Eileen Butler — one of the East Coast’s most celebrated painters, following
+          whatever moves her. Places, family light, and the motorcycles and cars she paints as if
+          they still run.
         </p>
       </BlurFade>
       <div className="mt-14">
