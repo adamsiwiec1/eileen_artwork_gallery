@@ -35,3 +35,4 @@ spaces/eileen-lora/lora/
 *.pt
 *.gguf
 *.bin
+.vercel

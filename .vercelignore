@@ -1,0 +1,22 @@
+.env
+.env.*
+!.env.example
+!**/.env.example
+.vercel
+.cursor
+eileen-images
+Eileen - Images for Art Website
+data
+outputs
+spaces
+workers
+scripts
+handler.py
+requirements.txt
+*.safetensors
+*.heic
+*.HEIC
+*.pt
+*.gguf
+*.bin
+apps/next/public/paintings

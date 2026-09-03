@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "workspaces": [
-    "apps/*"
+    "apps/next",
+    "apps/api"
   ],
   "engines": {
     "node": ">=20.19"
@@ -20,9 +21,14 @@
     "lora:train": "bash scripts/train-eileen-lora.sh",
     "lora:retrain": "bash scripts/retrain-eileen-lora.sh",
     "lora:prepare": "bash scripts/prepare-eileen-lora-dataset.sh",
-    "lora:sample": "bash scripts/sample-eileen-lora.sh"
+    "lora:sample": "bash scripts/sample-eileen-lora.sh",
+    "lora:serve": "bash scripts/serve-eileen-lora.sh"
   },
   "devDependencies": {
     "concurrently": "^10.0.4"
+  },
+  "overrides": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   }
 }
