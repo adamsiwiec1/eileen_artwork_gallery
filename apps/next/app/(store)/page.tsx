@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import type { GalleryPiece, Testimonial } from '@/lib/content';
 import type { RushTier } from '@/lib/types';
 import { Hero } from '@/components/store/Hero';
+import { EileenPhoto } from '@/components/store/EileenPhoto';
 import { Process } from '@/components/store/Process';
 import { Testimonials } from '@/components/store/Testimonials';
 import { GalleryGrid } from '@/components/store/GalleryGrid';
@@ -75,11 +76,55 @@ export default function HomePage() {
       <Hero />
       <BlurFade>
         <Marquee className="border-y border-white/[0.05] bg-canvas-2/40 py-3 text-[0.65rem] tracking-[0.28em] text-ink-muted uppercase">
-          {['Oil', 'Watercolour', 'Charcoal', 'Gold leaf', 'Hand-painted', 'One of one'].map((word) => (
+          {[
+            'Eileen Butler',
+            'Oil',
+            'Watercolour',
+            'Motorcycles',
+            'Cars',
+            'Charcoal',
+            'Hand-painted',
+            'One of one',
+          ].map((word) => (
             <span key={word}>{word}</span>
           ))}
         </Marquee>
       </BlurFade>
+      <section id="about" className="border-t border-white/[0.06] py-24 sm:py-32">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+          <Reveal>
+            <p className="text-[0.65rem] tracking-[0.3em] text-gilt uppercase">The painter</p>
+            <h2 className="mt-4 max-w-2xl font-display text-4xl leading-[1.05] text-balance text-ink sm:text-5xl">
+              Eileen Butler.
+            </h2>
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink-muted">
+              On the East Coast they call her the best, and they say it the way you say a friend’s
+              name. She paints because she likes making something for someone. A grandmother’s
+              garden. A harbour from the kitchen window. The motorcycle that carried you home.
+              Chrome and weather sit as easily in her hand as peonies. Every commission is one of
+              one, and it is yours before the first stroke.
+            </p>
+          </Reveal>
+          <Reveal>
+            <div className="relative mx-auto max-w-md pb-16 sm:pb-20 lg:mx-0 lg:max-w-none">
+              <figure className="overflow-hidden rounded-sm border border-white/[0.08] shadow-2xl shadow-black/40">
+                <EileenPhoto
+                  src="studio"
+                  alt="Eileen Butler seated in front of one of her paintings"
+                  className="aspect-[4/5] w-full object-cover object-[center_22%]"
+                />
+              </figure>
+              <figure className="absolute right-0 bottom-0 w-[46%] overflow-hidden rounded-sm border border-white/[0.1] shadow-2xl shadow-black/50 sm:-right-4">
+                <EileenPhoto
+                  src="with-work"
+                  alt="Eileen Butler beside a finished painting signed EB"
+                  className="aspect-[4/5] w-full object-cover object-[center_15%]"
+                />
+              </figure>
+            </div>
+          </Reveal>
+        </div>
+      </section>
       <Process />
       <Testimonials items={testimonials} />
       <section className="py-24 sm:py-32">
@@ -108,6 +153,14 @@ export default function HomePage() {
       </section>
       <LeadTimes tiers={tiers} />
       <section className="relative overflow-hidden border-t border-white/[0.06] py-28">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-1/2 left-1/2 size-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 blur-[110px]"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(210,163,196,0.28), rgba(126,148,204,0.12) 55%, transparent 70%)',
+          }}
+        />
         <Reveal className="relative mx-auto max-w-2xl px-6 text-center">
           <h2 className="font-display text-4xl leading-[1.05] text-balance text-ink sm:text-5xl">
             It takes one sentence to start.

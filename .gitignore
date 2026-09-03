@@ -15,7 +15,8 @@ __pycache__/
 # Local Cursor project files
 .cursor/
 
-# Eileen's source paintings (never commit)
+# Eileen's source dump (never commit). Curated portraits for the site
+# live in apps/next/public/eileen/ and are tracked.
 eileen-images/
 Eileen - Images for Art Website/
 apps/web/public/paintings/

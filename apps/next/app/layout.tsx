@@ -16,15 +16,16 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Eileen — Custom Hand-Painted Art From Your Imagination',
-    template: '%s | Eileen',
+    default: 'Eileen Butler — Hand-painted originals from the East Coast',
+    template: '%s | Eileen Butler',
   },
   description:
-    'Describe the painting you have always wanted, refine it in conversation, then have it hand-painted in oil, acrylic, watercolour or charcoal.',
+    'Eileen Butler paints commissioned originals for people — gardens, harbours, motorcycles and cars — then finishes each one by hand.',
   openGraph: {
-    title: 'Eileen — Custom Hand-Painted Art',
-    description: 'Commissioned originals, designed in conversation and painted by hand.',
-    images: ['https://picsum.photos/seed/eileen-og/1200/630'],
+    title: 'Eileen Butler — Hand-painted originals',
+    description:
+      'The East Coast painter people ask for, because she likes making the picture for you.',
+    images: [{ url: '/eileen/og.jpg', width: 1200, height: 630, alt: 'Eileen Butler' }],
   },
 };
 

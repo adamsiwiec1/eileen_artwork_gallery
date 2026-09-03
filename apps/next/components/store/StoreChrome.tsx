@@ -20,6 +20,7 @@ function ProgressRule() {
 
 const links = [
   { to: '/', label: 'Home' },
+  { to: '/#about', label: 'About' },
   { to: '/gallery', label: 'Gallery' },
 ];
 
@@ -44,7 +45,9 @@ function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
         <Link href="/" className="group flex items-baseline gap-2">
-          <span className="font-display text-2xl font-medium tracking-tight text-ink">Eileen</span>
+          <span className="font-display text-xl font-medium tracking-tight text-ink sm:text-2xl">
+            Eileen Butler
+          </span>
           <span className="hidden text-[0.65rem] tracking-[0.28em] text-ink-muted uppercase transition-colors group-hover:text-gilt sm:block">
             Atelier
           </span>
@@ -75,9 +78,9 @@ function Header() {
 
           <Link
             href="/studio"
-            className="ml-2 rounded-full border border-gilt/40 bg-gilt/10 px-4 py-2 text-sm text-gilt-bright transition-all duration-300 hover:border-gilt hover:bg-gilt/20 hover:shadow-[0_0_28px_-6px] hover:shadow-gilt/50 sm:px-5"
+            className="ml-2 rounded-full border border-gilt/40 bg-gilt/10 px-3 py-2 text-sm text-gilt-bright transition-all duration-300 hover:border-gilt hover:bg-gilt/20 hover:shadow-[0_0_28px_-6px] hover:shadow-gilt/50 sm:px-5"
           >
-            Start a piece
+            Start<span className="hidden sm:inline"> a piece</span>
           </Link>
         </nav>
       </div>
@@ -90,10 +93,10 @@ function Footer() {
     <footer className="border-t border-white/[0.06] bg-canvas-2">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2">
-          <p className="font-display text-2xl text-ink">Eileen</p>
+          <p className="font-display text-2xl text-ink">Eileen Butler</p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-muted">
-            Commissioned originals, designed in conversation and painted by hand in our studio.
-            Every piece is one of one.
+            The East Coast painter people ask for, because she likes making the picture for you.
+            Gardens, harbours, motorcycles and cars — every piece is one of one.
           </p>
         </div>
         <div>
@@ -108,6 +111,11 @@ function Footer() {
               <Link href="/studio" className="transition-colors hover:text-ink">
                 The Studio
               </Link>
+            </li>
+            <li>
+              <a href="/#about" className="transition-colors hover:text-ink">
+                The painter
+              </a>
             </li>
             <li>
               <a href="/#testimonials" className="transition-colors hover:text-ink">
@@ -133,7 +141,7 @@ function Footer() {
       </div>
       <div className="border-t border-white/[0.04] px-6 py-6">
         <p className="mx-auto max-w-7xl text-xs text-ink-muted/60">
-          © {new Date().getFullYear()} Eileen Atelier. Placeholder imagery throughout.
+          © {new Date().getFullYear()} Eileen Butler.
         </p>
       </div>
     </footer>
